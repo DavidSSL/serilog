@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Remoting.Messaging;
 using NUnit.Framework;
 using Serilog.Context;
 using Serilog.Events;
@@ -13,6 +14,13 @@ namespace Serilog.Tests.Context
     [TestFixture]
     public class LogContextTests
     {
+        [SetUp]
+        public void Setup()
+        {
+            LogContext.PermitCrossAppDomainCalls = false;
+            CallContext.LogicalSetData(typeof(LogContext).FullName, null);
+        }
+
         [Test]
         public void MoreNestedPropertiesOverrideLessNestedOnes()
         {
@@ -84,6 +92,35 @@ namespace Serilog.Tests.Context
                 .Enrich.FromLogContext()
                 .WriteTo.Sink(new DelegatingSink(e => lastEvent = e))
                 .CreateLogger();
+
+            using (LogContext.PushProperty("A", 1))
+            {
+                var pre = Thread.CurrentThread.ManagedThreadId;
+
+                await Task.Delay(1000);
+
+                var post = Thread.CurrentThread.ManagedThreadId;
+
+                log.Write(Some.InformationEvent());
+                Assert.AreEqual(1, lastEvent.Properties["A"].LiteralValue());
+
+                // No problem if this happens occasionally.
+                if (pre == post)
+                    Assert.Inconclusive("The test was marshalled back to the same thread after awaiting");
+            }
+        }
+
+        [Test]
+        public async Task ContextPropertiesPersistWhenCrossAppDomainCallsAreEnabled()
+        {
+            LogEvent lastEvent = null;
+
+            var log = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Sink(new DelegatingSink(e => lastEvent = e))
+                .CreateLogger();
+
+            LogContext.PermitCrossAppDomainCalls = true;
 
             using (LogContext.PushProperty("A", 1))
             {

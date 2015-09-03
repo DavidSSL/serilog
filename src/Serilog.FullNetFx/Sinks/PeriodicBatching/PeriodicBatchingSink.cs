@@ -60,10 +60,15 @@ namespace Serilog.Sinks.PeriodicBatching
 
             AppDomain.CurrentDomain.DomainUnload += OnAppDomainUnloading;
             AppDomain.CurrentDomain.ProcessExit += OnAppDomainUnloading;
+            AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnloading;
         }
 
         void OnAppDomainUnloading(object sender, EventArgs args)
         {
+            var eventArgs = args as UnhandledExceptionEventArgs;
+            if (eventArgs != null && !eventArgs.IsTerminating) 
+                return;
+
             CloseAndFlush();
         }
 
@@ -79,6 +84,7 @@ namespace Serilog.Sinks.PeriodicBatching
 
             AppDomain.CurrentDomain.DomainUnload -= OnAppDomainUnloading;
             AppDomain.CurrentDomain.ProcessExit -= OnAppDomainUnloading;
+            AppDomain.CurrentDomain.UnhandledException -= OnAppDomainUnloading;
 
             var wh = new ManualResetEvent(false);
             if (_timer.Dispose(wh))
@@ -148,7 +154,10 @@ namespace Serilog.Sinks.PeriodicBatching
                     }
 
                     if (_waitingBatch.Count == 0)
+                    {
+                        OnEmptyBatch();
                         return;
+                    }
 
                     EmitBatch(_waitingBatch);
 
@@ -221,6 +230,14 @@ namespace Serilog.Sinks.PeriodicBatching
         protected virtual bool CanInclude(LogEvent evt)
         {
             return true;
+        }
+
+        /// <summary>
+        /// Allows derived sinks to perform periodic work without requiring additional threads
+        /// or timers (thus avoiding additional flush/shut-down complexity).
+        /// </summary>
+        protected virtual void OnEmptyBatch()
+        {            
         }
     }
 }

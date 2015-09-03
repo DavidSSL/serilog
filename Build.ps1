@@ -1,16 +1,17 @@
 param(
     [String] $majorMinor = "0.0",  # 1.4
     [String] $patch = "0",         # $env:APPVEYOR_BUILD_VERSION
+    [String] $branch = "private",  # $env:APPVEYOR_REPO_BRANCH
     [String] $customLogger = "",   # C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll
     [Switch] $notouch
 )
 
-function Set-AssemblyVersions($informational, $assembly)
+function Set-AssemblyVersions($informational, $file, $assembly)
 {
     (Get-Content assets/CommonAssemblyInfo.cs) |
         ForEach-Object { $_ -replace """1.0.0.0""", """$assembly""" } |
         ForEach-Object { $_ -replace """1.0.0""", """$informational""" } |
-        ForEach-Object { $_ -replace """1.1.1.1""", """$($informational).0""" } |
+        ForEach-Object { $_ -replace """1.1.1.1""", """$file""" } |
         Set-Content assets/CommonAssemblyInfo.cs
 }
 
@@ -47,26 +48,22 @@ function Invoke-NuGetPack($version)
         Where-Object { -not ($_.Name -like "*net40*") } |
         Where-Object { -not ($_.Name -like "*FullNetFx*") } |
         Where-Object { -not ($_.Name -eq "Serilog.csproj") } |
-        Where-Object { -not ($_.Name -eq "Serilog.Sinks.Seq.csproj") } |
-        Where-Object { -not ($_.Name -eq "Serilog.Sinks.Splunk.csproj") } |
         ForEach-Object { Invoke-NuGetPackProj $_ }
 
     pushd .\src\Serilog
     Invoke-NuGetPackSpec "Serilog.nuspec" $version
     popd
-
-    pushd .\src\Serilog.Sinks.Seq
-    Invoke-NuGetPackSpec "Serilog.Sinks.Seq.nuspec" $version
-    popd
-
-    pushd .\src\Serilog.Sinks.Splunk
-    Invoke-NuGetPackSpec "Serilog.Sinks.Splunk.nuspec" $version
-    popd
 }
 
-function Invoke-Build($majorMinor, $patch, $customLogger, $notouch)
+function Invoke-Build($majorMinor, $patch, $branch, $customLogger, $notouch)
 {
-    $package="$majorMinor.$patch"
+    $target = (Get-Content ./CHANGES.md -First 1).Trim()
+    $file = "$target.$patch"
+    $package = $target
+    if ($branch -ne "master")
+    {
+        $package = "$target-pre-$patch"
+    }
 
     Write-Output "Building Serilog $package"
 
@@ -75,7 +72,7 @@ function Invoke-Build($majorMinor, $patch, $customLogger, $notouch)
         $assembly = "$majorMinor.0.0"
 
         Write-Output "Assembly version will be set to $assembly"
-        Set-AssemblyVersions $package $assembly
+        Set-AssemblyVersions $package $file $assembly
     }
 
     Install-NuGetPackages
@@ -87,4 +84,4 @@ function Invoke-Build($majorMinor, $patch, $customLogger, $notouch)
 }
 
 $ErrorActionPreference = "Stop"
-Invoke-Build $majorMinor $patch $customLogger $notouch
+Invoke-Build $majorMinor $patch $branch $customLogger $notouch

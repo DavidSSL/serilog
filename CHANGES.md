@@ -1,3 +1,75 @@
+1.5.9
+ * #491 - enable `ReadFrom.KeyValuePairs()` in .NET 4.0 build
+
+1.5.8
+ * #484 - generic overloads on `Log` to avoid boxing/allocation
+
+1.5.7
+ * #456 - support `ReadFrom.AppSettings()` and friends on .NET 4.0
+
+1.5.6
+ * Builds on `master` now derive their version from `CHANGES.md` (rather than vice-versa)
+ * #441 - Fix conversion of `Nullable<>` settings
+
+1.5.5
+ * #433 - Revert the default destructuring depth back to 10
+
+1.5.1
+ * #402 - `<appSettings>` configuration support now in the Serilog package
+
+1.4.214
+ * #344 - Moved "Extras" including Web, Owin, F#, destructuring to new organisations
+
+1.4.204
+ * #344 (partial) - Moved remaining sinks to individual repositories
+
+1.4.196
+ * #393 - Removed the Splunk sink for move to https://github.com/serilog/serilog-sinks-splunk
+ * #389 - Fixed the default URI in the ES sink
+ * #385 - Provided `IndexDecider` option to ES sink configuration
+
+1.4.182
+ * #382 - Fixed `CounterMeasure` counting in _Serilog.Extras.Timing_
+ * #386 - Expand environment variables on _Serilog.Extras.AppSettings_ values
+ * #387 - Elmah.io sink dependency version updated
+
+1.4.168
+ * #376 - Fixed flushing of async events to Loggly sink (moved to serilog/serilog-sinks-loggly)
+ * #374 - Run destructuring policies before converting `IEnumerable` types
+
+1.4.152
+ * #196 - `LogContext.PermitCrossAppDomainCalls` property to prevent serialization exceptions in test frameworks and when .NET remoting is used
+ * #365 - _Serilog.Sinks.ApplicationInsights_ now targets the new Azure Portal-based version (preview)
+ * #367 - _Serilog.Sinks.MongoDB_ now targets the new preview driver (preview)
+ * #369 - Fixed log message property in .NET 4.0 build of Elasticsearch sink
+ * #373 - Update the _Raygun_ sink from 2.0.4 to 4.2.0
+ * #344 - Moved the _MongoDB_ and _Application Insights_ sinks out to independent repositories
+
+1.4.139
+ * #125 - Merged _MonoTouch_ and _MonoAndroid_ sinks (**not currently published  to NuGet**)
+ * #362 - Update Loggly sink package dependencies
+ * #203 - _Azure Document DB_ sink
+
+1.4.126
+ * #354 - Added _Serilog.Extras.FSharp_
+
+1.4.118
+ * #351 - Azure Event Hubs sink
+
+1.4.113
+ * #329 - Write event properties as columns using the new `WriteTo.AzureTableStorageWithProperties()`
+ * #346 - Pass all properties through to _Serilog.Sinks.NLog_ as context properties
+ * #347 - Update _Serilog.Sinks.SignalR_ to SignalR version 2.1.0 (breaking)
+
+1.4.99
+ * #342 - Accept `ILogEventEnricher` rather than just `PropertyEnricher` to `ForContext`
+ * #341 - Selectable logging level for request details in _Serilog.Extras.Web_
+
+1.4.92
+ * #340 - Accept an `Encoding` parameter on the file sinks
+ * #336 - Use stream when writing to Splunk via HTTP
+ * #335 - Remove use of `dynamic` when destructuring `Nullable<T>` (iOS)
+
 1.4.65
  * #321 - Revert ES sink message property name to original value
  * #324 - Calculate ES index name from UTC timestamp

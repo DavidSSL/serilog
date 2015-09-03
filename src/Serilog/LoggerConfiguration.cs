@@ -37,7 +37,7 @@ namespace Serilog
         
         LogEventLevel _minimumLevel = LogEventLevel.Information;
         LoggingLevelSwitch _levelSwitch;
-        int _maximumDestructuringDepth = 5;
+        int _maximumDestructuringDepth = 10;
 
         /// <summary>
         /// Configures the sinks that log events will be emitted to.
@@ -103,7 +103,18 @@ namespace Serilog
                     depth => _maximumDestructuringDepth = depth);
             }
         }
-        
+
+        /// <summary>
+        /// Apply external settings to the logger configuration.
+        /// </summary>
+        public LoggerSettingsConfiguration ReadFrom
+        {
+            get
+            {
+                return new LoggerSettingsConfiguration(this);
+            }
+        }
+
         /// <summary>
         /// Create a logger using the configured sinks, enrichers and minimum level.
         /// </summary>

@@ -42,6 +42,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
@@ -52,11 +53,12 @@
     <Compile Include="Enrichers\MachineNameEnricher.cs" />
     <Compile Include="Enrichers\ThreadIdEnricher.cs" />
     <Compile Include="Context\LogContext.cs" />
-    <Compile Include="LoggerConfigurationFullNetFxExtensions.cs" />
+    <Compile Include="LoggerConfigurationFullNetFxExtensions-net40.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\..\assets\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Settings\AppSettings\AppSettingsSettings.cs" />
     <Compile Include="Sinks\IOFile\CharacterCountLimitedTextWriter.cs" />
     <Compile Include="Sinks\IOFile\FileSink.cs" />
     <Compile Include="Sinks\IOFile\NullSink.cs" />
